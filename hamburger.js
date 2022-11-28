@@ -140,10 +140,9 @@ class Cart{
 	};
 
 	checkboxChangeHandler(event) {
-		const productPrice = event.target.dataset?.price;
-		const productColories = event.target.dataset?.colories;
+		const productPrice = event.target.checked ? event.target.dataset.price : null;
+		const productColories = event.target.checked ? event.target.dataset.colories : null;
 		this.add(productPrice, productColories);
-		console.log(event.target)
 	};
 
 	add(productPrice, productColories) {
@@ -152,8 +151,8 @@ class Cart{
 	};
 
 	render() {
-		document.querySelector('.cart-price').innerHTML = getProductPrice();
-		document.querySelector('.cart-colories').innerHTML = getProductColories();
+		document.querySelector('.cart-price').innerHTML = this.getProductPrice();
+		document.querySelector('.cart-colories').innerHTML = this.getProductColories();
 	};
 	getProductPrice() {
 		return this.cart.reduce((acc, currentEl) => acc + currentEl.price, 0)
