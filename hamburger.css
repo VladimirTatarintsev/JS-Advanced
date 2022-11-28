@@ -43,7 +43,9 @@ body {
 	width: 200px;
 	height: 200px;
 }
-
+.burger-price{
+	
+}
 .wrapper-title{
 	display: flex;
 	flex-direction: column;
@@ -58,7 +60,8 @@ body {
 	padding-left: 0.25rem;
 }
 p{
-	margin: 0.5rem 0
+	margin: 0.5rem 0;
+	white-space: nowrap;
 }
 .cart{
 	display: flex;

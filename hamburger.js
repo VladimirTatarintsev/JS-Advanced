@@ -11,11 +11,11 @@ class Hamburger{
 	render() {
 		return `<div class="burger">
 				<img src="${this.src}" class="burger-img">
-				<div class="burger-size">${this.size}
+				<div class="burger-size">${this.size} гамбургер
 					<input type="checkbox" class="buy-product" data-price=${this.price} data-colories=${this.colories}>
 					<div class="wrapper-title">
-						<div class="burger-price">Стоимость:${this.price}</div>
-						<span class="игкпук-colories">Колорий:${this.colories}</span>
+						<div class="burger-price">Стоимость: ${this.price} рублей</div>
+						<span class="игкпук-colories">Колорий: ${this.colories} Ккал</span>
 					</div>
 				</div>
 			</div>`
@@ -66,7 +66,7 @@ class OptionItem {
 					<input type="checkbox" class="buy-product" data-price=${this.price} data-colories=${this.colories}>
 					<span>Добавить:
 						<span class="burger-option__title">${this.name}</span>
-						<p>Стоимость: <span class="option-price">${this.price}</span></p>
+						<p>Стоимость: <span class="option-price">${this.price}</span> рублей</p>
 						<p>Калорий: <span class="option-colories">${this.colories}</span></p>
 					</span>
 				  </div>`
@@ -124,10 +124,6 @@ class Cart{
 	}
 
 	init() {
-		document.querySelectorAll('.buy-product').forEach((element) =>
-		element.addEventListener('change', (event) => this.checkboxChangeHandler(event))
-		);
-		
 		const burger = new ProductList();
 		burger.fetchProducts();
 		burger.render();
@@ -136,19 +132,30 @@ class Cart{
 		option.fetchOptions();
 		option.render();
 
+		document.querySelectorAll('.buy-product').forEach((element) =>
+		element.addEventListener('change', (event) => {this.checkboxChangeHandler(event)})
+		);
+
 		this.render();
 	};
 
 	checkboxChangeHandler(event) {
-		const productPrice = event.target.checked ? event.target.dataset.price : null;
-		const productColories = event.target.checked ? event.target.dataset.colories : null;
-		this.add(productPrice, productColories);
+		const productPrice = +event.target.dataset.price;
+		const productColories = +event.target.dataset.colories;
+		event.target.checked === true ? this.addElem(productPrice, productColories) : this.removeElem(event);
 	};
 
-	add(productPrice, productColories) {
+	addElem(productPrice, productColories) {
 		this.cart.push({price: productPrice, colories: productColories});
 		this.render();
 	};
+	findElemIndex(event) {
+		this.cart.findIndex((i) => i.price === +event.target.dataset.price && i.colories === +event.target.dataset.colories);
+	}
+	removeElem(event) {
+		this.cart.splice(this.findElemIndex(event), 1);
+		this.render();
+	}
 
 	render() {
 		document.querySelector('.cart-price').innerHTML = this.getProductPrice();
@@ -164,6 +171,3 @@ class Cart{
 
 const cart = new Cart();
 cart.init();
-
-
-
