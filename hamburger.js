@@ -1,7 +1,8 @@
 'use strict'
 
 class Hamburger{
-	constructor (size, price, src, colories) {
+	constructor (size, id, price, src, colories) {
+		this.id = id;
 		this.src = src;
 		this.size = size;
 		this.price = price;
@@ -12,7 +13,7 @@ class Hamburger{
 		return `<div class="burger">
 				<img src="${this.src}" class="burger-img">
 				<div class="burger-size">${this.size} гамбургер
-					<input type="checkbox" class="buy-product" data-price=${this.price} data-colories=${this.colories}>
+					<input type="checkbox" class="buy-product" data-id=${this.id} data-price=${this.price} data-colories=${this.colories}>
 					<div class="wrapper-title">
 						<div class="burger-price">Стоимость: ${this.price} рублей</div>
 						<span class="игкпук-colories">Колорий: ${this.colories} Ккал</span>
@@ -30,13 +31,15 @@ class ProductList {
 	fetchProducts() {
 		this.products = [
 			{
-				size: 'Большой', 
+				size: 'Большой',
+				id: 'Big-daddy',
 				price: '100', 
 				src: 'image/burger-image/big-burger.jpg', 
 				colories: '40'
 			},
 			{
-				size: 'Маленький', 
+				size: 'Маленький',
+				id: 'mini-burger',
 				price: '50', 
 				src: 'image/burger-image/small.jpg', 
 				colories: '20'
@@ -47,7 +50,7 @@ class ProductList {
 	render() {
 		let listHTML = '';
 		this.products.forEach(product => {
-			const productItem = new Hamburger(product.size, product.price, product.src, product.colories);
+			const productItem = new Hamburger(product.size, product.id, product.price, product.src, product.colories);
 			listHTML += productItem.render();
 			return listHTML;
 		});
@@ -56,14 +59,15 @@ class ProductList {
 };
 
 class OptionItem {
-	constructor(name, price, colories){
+	constructor(id, name, price, colories){
+		this.id = id;
 		this.name = name;
 		this.price = price;
 		this.colories = colories;
 	}
 	render() {
 		return `<div class="burger-option">
-					<input type="checkbox" class="buy-product" data-price=${this.price} data-colories=${this.colories}>
+					<input type="checkbox" class="buy-product" data-id=${this.id} data-price=${this.price} data-colories=${this.colories}>
 					<span>Добавить:
 						<span class="burger-option__title">${this.name}</span>
 						<p>Стоимость: <span class="option-price">${this.price}</span> рублей</p>
@@ -81,26 +85,31 @@ class OptionList {
 	fetchOptions() {
 		this.options = [
 			{
+				id: 'cheese',
 				name: 'Сыр',
 				price: '10',
 				colories: '20',
 			},
 			{
+				id: 'salat',
 				name: 'Салат',
 				price: '20',
 				colories: '5',
 			},
 			{
+				id: 'potato',
 				name: 'Картофель',
 				price: '15',
 				colories: '10',
 			},
 			{
+				id: 'spice',
 				name: 'Приправа',
 				price: '15',
 				colories: '0',
 			},
 			{
+				id: 'mayonnaise',
 				name: 'Майонез',
 				price: '20',
 				colories: '5',
@@ -111,7 +120,7 @@ class OptionList {
 	render() {
 		let optionsList = '';
 		this.options.forEach(option => {
-			const optionItem = new OptionItem(option.name, option.price, option.colories);
+			const optionItem = new OptionItem(option.id, option.name, option.price, option.colories);
 			optionsList += optionItem.render();
 		});
 		document.querySelector('.options-wrapper').insertAdjacentHTML('afterbegin', optionsList);
@@ -132,30 +141,32 @@ class Cart{
 		option.fetchOptions();
 		option.render();
 
-		document.querySelectorAll('.buy-product').forEach((element) =>
-		element.addEventListener('change', (event) => {this.checkboxChangeHandler(event)})
+		document.querySelectorAll('.buy-product').forEach((element) => {
+			element.addEventListener('change', (event) => {this.checkboxChangeHandler(event)})
+		}
 		);
 
 		this.render();
 	};
 
 	checkboxChangeHandler(event) {
+		const productId = event.target.dataset.id;
 		const productPrice = +event.target.dataset.price;
 		const productColories = +event.target.dataset.colories;
-		event.target.checked === true ? this.addElem(productPrice, productColories) : this.removeElem(event);
+		event.target.checked === true ? this.addElem({id: productId, price: productPrice, colories: productColories}) : this.removeElem(productId);
 	};
 
-	addElem(productPrice, productColories) {
-		this.cart.push({price: productPrice, colories: productColories});
+	addElem({id, price, colories}) {
+		this.cart.push({id: id, price: price, colories: colories});
 		this.render();
 	};
-	findElemIndex(event) {
-		this.cart.findIndex((i) => i.price === +event.target.dataset.price && i.colories === +event.target.dataset.colories);
-	}
-	removeElem(event) {
-		this.cart.splice(this.findElemIndex(event), 1);
+	getElemIndex(id) {
+		return this.cart.findIndex((i) => i.id === id);
+	};
+	removeElem(id) {
+		this.cart.splice(this.getElemIndex(id), 1);
 		this.render();
-	}
+	};
 
 	render() {
 		document.querySelector('.cart-price').innerHTML = this.getProductPrice();
