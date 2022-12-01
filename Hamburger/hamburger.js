@@ -11,7 +11,7 @@ class Hamburger{
 
 	render() {
 		return `<div class="burger">
-				<img src="${this.src}" class="burger-img">
+				<img src=${this.src} class="burger-img">
 				<div class="burger-size">${this.size} гамбургер
 					<input type="checkbox" class="buy-product" data-id=${this.id} data-price=${this.price} data-colories=${this.colories}>
 					<div class="wrapper-title">
@@ -33,16 +33,16 @@ class ProductList {
 			{
 				size: 'Большой',
 				id: 'Big-daddy',
-				price: '100', 
-				src: 'image/burger-image/big-burger.jpg', 
-				colories: '40'
+				price: 100, 
+				src: 'burger-image/big-burger.jpg', 
+				colories: 40,
 			},
 			{
 				size: 'Маленький',
 				id: 'mini-burger',
-				price: '50', 
-				src: 'image/burger-image/small.jpg', 
-				colories: '20'
+				price: 50, 
+				src: 'burger-image/small.jpg', 
+				colories: 20,
 			}
 		]
 	}
@@ -87,32 +87,32 @@ class OptionList {
 			{
 				id: 'cheese',
 				name: 'Сыр',
-				price: '10',
-				colories: '20',
+				price: 10,
+				colories: 20,
 			},
 			{
 				id: 'salat',
 				name: 'Салат',
-				price: '20',
-				colories: '5',
+				price: 20,
+				colories: 5,
 			},
 			{
 				id: 'potato',
 				name: 'Картофель',
-				price: '15',
-				colories: '10',
+				price: 15,
+				colories: 10,
 			},
 			{
 				id: 'spice',
 				name: 'Приправа',
-				price: '15',
-				colories: '0',
+				price: 15,
+				colories: 0,
 			},
 			{
 				id: 'mayonnaise',
 				name: 'Майонез',
-				price: '20',
-				colories: '5',
+				price: 20,
+				colories: 5,
 			},
 		]
 	};

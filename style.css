@@ -19,18 +19,27 @@ body {
 .title {
 	background-color: #ed8d1f;
 	margin-bottom: 2rem;
-	height: 2rem;;
+	height: 3rem;;
 	display: flex;
-	justify-content: flex-end;
+	align-items: center;
+	justify-content: space-between;
 	border-radius: 5px;
 	position: sticky;
 	top: 0px;
 	z-index: 1;
 }
+.title__header{
+	color: #fff;
+	margin-left: 1rem;
+	padding: 0 0.5rem;
+	border: 2px solid #fff;
+	border-radius: 5px;
+}
 .cart{
 	display: flex;
 	align-items: center;
 	color: #459DF5;
+	justify-self: flex-end;
 }
 .cart-btn{
 	padding: 0 0.5rem 0 0.5rem;

@@ -1,12 +1,32 @@
 'use strict'
 
-function GoodsItem (title, price, src) {
-	this.title = title;
-	this.price = price;
-	this._src = src;
+function makeGETRequest(url) {
+	return fetch(url).then(respone => {
+		return respone.json();
+	})
+	// return new Promise((resolve) => {
+	// 	const xhr = new XMLHttpRequest();
+	// xhr.open('GET', url);
+	// xhr.onreadystatechange = function() {
+	// 	if (xhr.readyState === XMLHttpRequest.DONE) {
+	// 		const goods = JSON.parse(xhr.responseText);
+	// 		resolve(goods);
+	// 	};
+	// };
+	// xhr.send();
+	// });
+};
 
-	GoodsItem.prototype.render = function() {
-		return `<div class="card">
+
+class GoodsItem {
+	constructor(title, price, src) {
+		this.title = title;
+		this.price = price;
+		this._src = src;
+	}
+
+		render() {
+			return `<div class="card">
 		<div class="img-wrapper">
 			<img src=${this._src} class="card-img">
 		</div>
@@ -19,103 +39,90 @@ function GoodsItem (title, price, src) {
 			</button>
 		</div>
 	</div>`;
-	};
-
+		};
 };
 
-function GoodsList () {
-	this.goods = [];
-
-	GoodsList.prototype.fetchGoods = function() {
-		this.goods = [
-			{title: 'Видеокарта MSI GeForce RTX 3090 Ti SUPRIM X 24Gb', price: '109999', src: 'image/card-image/MSIGeForceRTX3090TiSUPRIMX.jpg'},
-			{title: 'Видеокарта GIGABYTE GeForce RTX 3090 24Gb', price: '106499', src: 'image/card-image/GIGABYTEGeForceRTX3090GamingOC.jpg'},
-			{title: 'Видеокарта Palit GeForce RTX 4080 GameRock 16Gb', price: '106999', src: 'image/card-image/PalitGeForceRTX4080GameRock.jpg'},
-			{title: 'Видеокарта GIGABYTE GeForce RTX 4080 AORUS MASTER 16Gb', price: '119999', src: 'image/card-image/GIGABYTEGeForceRTX4080AORUSMASTER.jpg'},
-			{title: 'Видеокарта GIGABYTE AORUS GeForce RTX 4080 XTREME WATERFORCE 16Gb', price: '123999', src: 'image/card-image/GIGABYTEAORUSGeForceRTX4080XTREMEWATERFORCE.jpg'},
-			{title: 'Видеокарта ASUS ROG Strix GeForce RTX 3080 V2 OC Edition 10Gb', price: '94299', src: 'image/card-image/ASUSROGStrixGeForceRTX3080V2OCEdition.jpg'},
-			{title: 'Видеокарта GIGABYTE GeForce RTX 3080 GAMING OC (LHR) 10Gb', price: '84299', src: 'image/card-image/GIGABYTEGeForceRTX3080GAMINGOC(LHR).jpg'},
-			{title: 'Видеокарта ColorFul iGame GeForce RTX 3080 Advanced OC LHR-V 10Gb', price: '97799', src: 'image/card-image/ColorFuliGameGeForceRTX3080AdvancedOCLHR-V.jpg'},
-			{title: 'Видеокарта Palit GeForce RTX 3080 Ti GamingPro 12Gb', price: '98999', src: 'image/card-image/PalitGeForceRTX3080TiGamingPro.jpg'},
-			{title: 'Видеокарта GIGABYTE GeForce RTX 3080 Ti EAGLE OC 12Gb', price: '98999', src: 'image/card-image/GIGABYTEGeForceRTX3080TiEAGLEOC.jpg'},
-			{title: 'Видеокарта PowerColor AMD Radeon RX 6900 XT Red Devil 24Gb', price: '73799', src: 'image/card-image/PowerColorAMDRadeonRX6900XTRedDevil.jpg'},
-			{title: 'Видеокарта Sapphire TOXIC AMD Radeon RX 6900 XT Air Cooled 24Gb', price: '74499', src: 'image/card-image/SapphireTOXICAMDRadeonRX6900XTAirCooled.jpg'},
-			{title: 'Видеокарта MSI AMD Radeon RX 6950 XT GAMING X TRIO 24Gb', price: '89999', src: 'image/card-image/MSIAMDRadeonRX6950XTGAMINGXTRIO.jpg'},
-			{title: 'Видеокарта GIGABYTE AMD Radeon RX 6950 XT GAMING OC 24Gb', price: '112999', src: 'image/card-image/GIGABYTEAMDRadeonRX6950XTGAMINGOC.jpg'},
-		];
+class GoodsList {
+	constructor() {
+		this.goods = [];
 	};
 
-	GoodsList.prototype.render = function() {
-		return this.goods.map((good)=> new GoodsItem(good.title, good.price, good.src).render()).join('');
+	fetchGoods() {
+		return makeGETRequest('/goods')
+			.then((goods) => {
+				this.goods = goods;
+			}
+		)
 	};
 
-	GoodsList.prototype.getSumGoods = function() {
+	render() {
+		let goodsHTML = '';
+		this.goods.forEach((good) => {
+			const goodItem = new GoodsItem(good.title, good.price, good.src);
+			goodsHTML += goodItem.render();
+		});
+		document.querySelector('.main__goods-list').innerHTML = goodsHTML;
+	};
+
+	getSumGoods() {
 		return this.goods.reduce((accum, good) => accum + Number(good.price), 0);
+	};
+	renderSumGoods() {
+		const totalPrice = this.getSumGoods();
+		document.querySelector('.main__total-price').innerHTML = `Сумма всех товаров: ${totalPrice} рублей.`;
 	}
 };
 
-function GoodsCart(good) {
-	this.good = good;
-	GoodsCart.protorype.add = function() {
-
+class Cart {
+	constructor(quantity) {
+		this.cart = [];
+		this.quantity = quantity;
 	};
-	GoodsCart.prototype.render = function() {
 
+	fetchCart() {
+		return document.querySelector('.cart-btn').addEventListener('click', () => {
+			makeGETRequest('/cart')
+				.then((cart) => {
+					this.cart = cart;
+				})
+		})
+	};
+	
+	add() {
+	};
+
+	render() {
+		let cartGoodsHTML = document.createElement('ul');
+		cartGoodsHTML.classList.add('cart-list');
+		this.cart.forEach((good) => {
+			const goodItem = new GoodsCartElem(good.title, good.price, good.src, good.quantity);
+			cartGoodsHTML.insertAdjacentHTML('beforeend', goodItem.render());
+		});
+		document.querySelector('.cart__goods-wrapper').innerHTML = cartGoodsHTML;
 	};
 };
 
-function GoodsCartElem() {
-	this.goodsCount = [];
-
-	GoodsCartElem.prototype.render = function() {
-		
+class GoodsCartElem extends GoodsItem {
+	constructor(quantity) {
+		super(title, price, src)
+		this.quantity = quantity;
 	}
+	render() {
+		return `<li class="cart-good">
+			<img src=${this.src} class="card-img">
+			<h5 class="good-title">${this.title}</h5>
+			<p class="good-price">${this.price} руб.</p>
+			<p class="good-quantity">${this.quantity} шт.</p>
+		</li>`
+	};
 };
 
 const goods = new GoodsList();
-goods.fetchGoods();
-document.querySelector('.main__goods-list').innerHTML = goods.render();
-document.querySelector('.main__price').innerHTML = goods.getSumGoods();
-
-
-// const goods = [
-// 	{title: 'Видеокарта MSI GeForce RTX 3090 Ti SUPRIM X 24Gb', price: '109 999', src: 'image/card-image/MSIGeForceRTX3090TiSUPRIMX.jpg'},
-// 	{title: 'Видеокарта GIGABYTE GeForce RTX 3090 24Gb', price: '106 499', src: 'image/card-image/GIGABYTEGeForceRTX3090GamingOC.jpg'},
-// 	{title: 'Видеокарта Palit GeForce RTX 4080 GameRock 16Gb', price: '106 999', src: 'image/card-image/PalitGeForceRTX4080GameRock.jpg'},
-// 	{title: 'Видеокарта GIGABYTE GeForce RTX 4080 AORUS MASTER 16Gb', price: '119 999', src: 'image/card-image/GIGABYTEGeForceRTX4080AORUSMASTER.jpg'},
-// 	{title: 'Видеокарта GIGABYTE AORUS GeForce RTX 4080 XTREME WATERFORCE 16Gb', price: '123 999', src: 'image/card-image/GIGABYTEAORUSGeForceRTX4080XTREMEWATERFORCE.jpg'},
-// 	{title: 'Видеокарта ASUS ROG Strix GeForce RTX 3080 V2 OC Edition 10Gb', price: '94 299', src: 'image/card-image/ASUSROGStrixGeForceRTX3080V2OCEdition.jpg'},
-// 	{title: 'Видеокарта GIGABYTE GeForce RTX 3080 GAMING OC (LHR) 10Gb', price: '84 299', src: 'image/card-image/GIGABYTEGeForceRTX3080GAMINGOC(LHR).jpg'},
-// 	{title: 'Видеокарта ColorFul iGame GeForce RTX 3080 Advanced OC LHR-V 10Gb', price: '97 799', src: 'image/card-image/ColorFuliGameGeForceRTX3080AdvancedOCLHR-V.jpg'},
-// 	{title: 'Видеокарта Palit GeForce RTX 3080 Ti GamingPro 12Gb', price: '98 999', src: 'image/card-image/PalitGeForceRTX3080TiGamingPro.jpg'},
-// 	{title: 'Видеокарта GIGABYTE GeForce RTX 3080 Ti EAGLE OC 12Gb', price: '98 999', src: 'image/card-image/GIGABYTEGeForceRTX3080TiEAGLEOC.jpg'},
-// 	{title: 'Видеокарта PowerColor AMD Radeon RX 6900 XT Red Devil 24Gb', price: '73 799', src: 'image/card-image/PowerColorAMDRadeonRX6900XTRedDevil.jpg'},
-// 	{title: 'Видеокарта Sapphire TOXIC AMD Radeon RX 6900 XT Air Cooled 24Gb', price: '74 499', src: 'image/card-image/SapphireTOXICAMDRadeonRX6900XTAirCooled.jpg'},
-// 	{title: 'Видеокарта MSI AMD Radeon RX 6950 XT GAMING X TRIO 24Gb', price: '89 999', src: 'image/card-image/MSIAMDRadeonRX6950XTGAMINGXTRIO.jpg'},
-// 	{title: 'Видеокарта GIGABYTE AMD Radeon RX 6950 XT GAMING OC 24Gb', price: '112 999', src: 'image/card-image/GIGABYTEAMDRadeonRX6950XTGAMINGOC.jpg'},
-// ];
-
-// const renderGoodsItem = (title, price, src) => {
-// 	return `<div class="card">
-// 					<div class="img-wrapper">
-// 						<img src=${src} class="card-img">
-// 					</div>
-// 					<div class="card-body">
-// 						<h5 class="card-title">${title}</h5>
-// 						<p class="price">${price} руб.</p>
-// 						<button class="btn btn-primary">
-// 							<span class="btn-text">Купить
-// 							</span>
-// 						</button>
-// 					</div>
-// 			</div>`;
-// 	};
-
-// const renderGoodsList = (list) => {
-// 	let goodsList = list.map(({title, price, src}) => renderGoodsItem(title, price, src));
-// 	document.querySelector('.main__goods-list').innerHTML = goodsList.join('');
-// };
-
-// renderGoodsList(goods);
-
-
+goods.fetchGoods().then(() => {
+	goods.render();
+	goods.renderSumGoods();
+});
+const cart = new Cart();
+cart.fetchCart().then(() => {
+	cart.render();
+})
