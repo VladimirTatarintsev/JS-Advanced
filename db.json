@@ -17,7 +17,11 @@
 	],
 
 	"cart": [
-		{ "id": 1, "title": "Видеокарта MSI GeForce RTX 3090 Ti SUPRIM X 24Gb", "price": 109999, "src": "image/card-image/MSIGeForceRTX3090TiSUPRIMX.jpg", "quantity": 1 },
-		{ "id": 8, "title": "Видеокарта ColorFul iGame GeForce RTX 3080 Advanced OC LHR-V 10Gb", "price": 97799, "src": "image/card-image/ColorFuliGameGeForceRTX3080AdvancedOCLHR-V.jpg", "quantity": 2 }
+		{ "id": 1, "title": "Видеокарта MSI GeForce RTX 3090 Ti SUPRIM X 24Gb", "price": 109999, "src": "image/card-image/MSIGeForceRTX3090TiSUPRIMX.jpg", "qty": 1},
+		{ "id": 2, "title": "Видеокарта GIGABYTE GeForce RTX 3090 24Gb", "price": 106499, "src": "image/card-image/GIGABYTEGeForceRTX3090GamingOC.jpg", "qty": 1}
+	],
+
+	"users": [
+		
 	]
 }

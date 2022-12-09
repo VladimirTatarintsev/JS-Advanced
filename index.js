@@ -4,17 +4,6 @@ function makeGETRequest(url) {
 	return fetch(url).then(respone => {
 		return respone.json();
 	})
-	// return new Promise((resolve) => {
-	// 	const xhr = new XMLHttpRequest();
-	// xhr.open('GET', url);
-	// xhr.onreadystatechange = function() {
-	// 	if (xhr.readyState === XMLHttpRequest.DONE) {
-	// 		const goods = JSON.parse(xhr.responseText);
-	// 		resolve(goods);
-	// 	};
-	// };
-	// xhr.send();
-	// });
 };
 
 
@@ -33,7 +22,7 @@ class GoodsItem {
 		<div class="card-body">
 			<h5 class="card-title">${this.title}</h5>
 			<p class="price">${this.price} руб.</p>
-			<button class="btn btn-primary">
+			<button class="btn-primary">
 				<span class="btn-text">Купить
 				</span>
 			</button>
@@ -45,19 +34,29 @@ class GoodsItem {
 class GoodsList {
 	constructor() {
 		this.goods = [];
+		this.filteredGoods = [];
 	};
 
 	fetchGoods() {
 		return makeGETRequest('/goods')
-			.then((goods) => {
-				this.goods = goods;
-			}
-		)
+			.then((data) => {
+				this.goods = data;
+				this.filteredGoods = data;
+			});
 	};
+
+	filterGoods(value) {
+		const regexp = new RegExp(value, 'i');
+		this.filteredGoods = this.goods.filter(good => 
+			regexp.test(good.title));
+			this.render();
+	};
+
+
 
 	render() {
 		let goodsHTML = '';
-		this.goods.forEach((good) => {
+		this.filteredGoods.forEach((good) => {
 			const goodItem = new GoodsItem(good.title, good.price, good.src);
 			goodsHTML += goodItem.render();
 		});
@@ -73,46 +72,53 @@ class GoodsList {
 	}
 };
 
-class Cart {
-	constructor(quantity) {
+class CartList {
+	constructor(qty) {
 		this.cart = [];
-		this.quantity = quantity;
+		this.qty = qty;
 	};
 
 	fetchCart() {
-		return document.querySelector('.cart-btn').addEventListener('click', () => {
-			makeGETRequest('/cart')
-				.then((cart) => {
-					this.cart = cart;
-				})
-		})
-	};
+		return makeGETRequest('/cart')
+		.then((data) => {
+			this.cart = data;
+		});
+		};
 	
 	add() {
 	};
 
 	render() {
+
 		let cartGoodsHTML = document.createElement('ul');
 		cartGoodsHTML.classList.add('cart-list');
 		this.cart.forEach((good) => {
-			const goodItem = new GoodsCartElem(good.title, good.price, good.src, good.quantity);
+			const goodItem = new CartItem(good.title, good.price, good.src, good.qty);
 			cartGoodsHTML.insertAdjacentHTML('beforeend', goodItem.render());
 		});
-		document.querySelector('.cart__goods-wrapper').innerHTML = cartGoodsHTML;
+		if (this.cart.length === 0) {
+			document.querySelector('.cart-hidden').innerHTML = 'Ваша корзина пуста';
+		} else {
+			document.querySelector('.cart-hidden').insertAdjacentElement('beforeend', cartGoodsHTML);
+		}
 	};
 };
 
-class GoodsCartElem extends GoodsItem {
-	constructor(quantity) {
+class CartItem extends GoodsItem {
+	constructor(title, price, src, qty) {
 		super(title, price, src)
-		this.quantity = quantity;
+		this.qty = qty;
 	}
 	render() {
 		return `<li class="cart-good">
-			<img src=${this.src} class="card-img">
+			<div class="good-img-wrapper">
+				<img src=${this._src} class="good-img">
+			</div>
+			<div class="good-title-wrapper">
 			<h5 class="good-title">${this.title}</h5>
 			<p class="good-price">${this.price} руб.</p>
-			<p class="good-quantity">${this.quantity} шт.</p>
+			<p class="good-qty">${this.qty} шт.</p>
+			</div>
 		</li>`
 	};
 };
@@ -122,7 +128,17 @@ goods.fetchGoods().then(() => {
 	goods.render();
 	goods.renderSumGoods();
 });
-const cart = new Cart();
+const cart = new CartList();
 cart.fetchCart().then(() => {
 	cart.render();
 })
+
+document.querySelector('.cart-btn').addEventListener('click', () => {
+	const btn = document.querySelector('.cart__goods-wrapper');
+	btn.classList.toggle('cart-hidden')
+});
+const searchInput = document.querySelector('.goods-search');
+document.querySelector('.search-btn').addEventListener('click', () => {
+	const value = searchInput.value;
+	goods.filterGoods(value);
+});
